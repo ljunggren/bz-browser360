@@ -1,0 +1,32 @@
+{
+  "name": "boozang",
+  "version": "4.2.1",
+  "description": "An Simple Driver for Chrome Headless basded on Puppeteer",
+  "dependencies": {
+    "node-options": "latest",
+    "puppeteer": "0.12.0"
+  },
+  "bin": {
+    "boozang": "index.js"
+  },
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ljunggren/bz-puppeteer.git"
+  },
+  "keywords": [
+    "boozang",
+    "puppeteer",
+    "automation"
+  ],
+  "author": "Mats Ljunggren",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ljunggren/bz-puppeteer/issues"
+  },
+  "homepage": "https://github.com/ljunggren/bz-puppeteer#readme"
+}
