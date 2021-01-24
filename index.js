@@ -62,7 +62,7 @@ let popup = null;
   function getId(){
     fs.readFile('nohup.out', 'utf8', function(err, data) {
       if (!err){
-        browserid = data.match(/[\/]([^\/]+)$/);
+        browserid = data.match(/devtools[\/]browser[\/]([^\/]+)$/);
         if(browserid){
           browserid=browserid[1].split("\n")[0]
           console.log('The value of BROWSERID is:' + browserid);
