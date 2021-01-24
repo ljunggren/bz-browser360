@@ -57,18 +57,27 @@ let popup = null;
 
   // const delay = ms => new Promise(res => setTimeout(res, ms));
   // await delay(15000);
+  getId()
 
-  fs.readFile('nohup.out', 'utf8', function(err, data) {
-      if (err) throw err;
-      console.log('Getting browserid from file: ' + data);
-      browserid = data.match(/[\/]([^\/]+)$/);
-      browserid = ((browserid && browserid[1])||"").split("\n")[0];
-      
-      console.log('The value of BROWSERID is:' + browserid);
-      _doIt()
-  });
+  function getId(){
+    fs.readFile('nohup.out', 'utf8', function(err, data) {
+      if (!err){
+        console.log('Getting browserid from file: ' + data);
+        browserid = data.match(/[\/]([^\/]+)$/);
+        if(browserid){
+          browserid=browserid[1].split("\n")[0]
+          console.log('The value of BROWSERID is:' + browserid);
+          return doIt()
+        }
+      }
+      setTimeout(()=>{
+        getId()
+      },10)
+    });
+  }
 
-  async function _doIt(){
+
+  async function doIt(){
 
     let file = (docker ? "/var/boozang/" : "");
     if (opts.file){
