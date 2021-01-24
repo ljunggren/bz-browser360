@@ -46,10 +46,28 @@ console.log("Running with following args");
 console.log(opts);
 console.log("Example: Use --verbose for verbose logging (boolean example). Use --width=800 to override default width (value example.)");
 
-console.log('The value of BROWSERID is:', process.env.BROWSERID);
+var fs = require('fs');
+
+
 let browserid = process.env.BROWSERID;
 
 (async () => {
+
+
+const delay = ms => new Promise(res => setTimeout(res, ms));
+await delay(15000);
+
+fs.readFile('nohup.out', 'utf8', function(err, data) {
+    if (err) throw err;
+    console.log('Getting browserid from file: ' + data);
+    browserid = data.match(/[\/]([^\/]+)$/);
+    browserid = ((browserid && browserid[1])||"").split("\n")[0];
+    
+    console.log('The value of BROWSERID is:' + browserid);
+});
+
+
+
   
   let file = (docker ? "/var/boozang/" : "");
   if (opts.file){

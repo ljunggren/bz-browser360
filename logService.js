@@ -30,7 +30,8 @@ const Service = {
     page.on('console', msg => {
       let timeout,t;
 
-      msg = (!!msg && msg.text()) || "def";
+      msg = (msg&&msg.text) || "def";
+
       msg=trimPreMsg(msg)
       if(!msg){
         return
@@ -84,7 +85,7 @@ const Service = {
     })
     
     function trimPreMsg(msg){
-      if(msg&&msg.startsWith("BZ-LOG:")){
+      if(msg&&msg.match(/^BZ-LOG\:/)){
         msg=msg.substring(7).trim()
       }else{
         return
