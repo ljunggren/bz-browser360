@@ -50,52 +50,117 @@ var fs = require('fs');
 
 
 let browserid = process.env.BROWSERID;
+// Setup popup
+let popup = null;
 
 (async () => {
 
+  // const delay = ms => new Promise(res => setTimeout(res, ms));
+  // await delay(15000);
 
-const delay = ms => new Promise(res => setTimeout(res, ms));
-await delay(15000);
+  fs.readFile('nohup.out', 'utf8', function(err, data) {
+      if (err) throw err;
+      console.log('Getting browserid from file: ' + data);
+      browserid = data.match(/[\/]([^\/]+)$/);
+      browserid = ((browserid && browserid[1])||"").split("\n")[0];
+      
+      console.log('The value of BROWSERID is:' + browserid);
+      _doIt()
+  });
 
-fs.readFile('nohup.out', 'utf8', function(err, data) {
-    if (err) throw err;
-    console.log('Getting browserid from file: ' + data);
-    browserid = data.match(/[\/]([^\/]+)$/);
-    browserid = ((browserid && browserid[1])||"").split("\n")[0];
+  async function _doIt(){
+
+    let file = (docker ? "/var/boozang/" : "");
+    if (opts.file){
+      file += opts.file;
+    }
+
+    let userdatadir = "";
+    if (opts.userdatadir){
+      userdatadir = (docker ? "/var/boozang/userdatadir" : "") + (opts.userdatadir || "");
+      console.log("Setting userdatadir: " + userdatadir);
+    }
     
-    console.log('The value of BROWSERID is:' + browserid);
-});
-
-
-
-  
-  let file = (docker ? "/var/boozang/" : "");
-  if (opts.file){
-    file += opts.file;
-  }
-
-  let userdatadir = "";
-  if (opts.userdatadir){
-    userdatadir = (docker ? "/var/boozang/userdatadir" : "") + (opts.userdatadir || "");
-    console.log("Setting userdatadir: " + userdatadir);
-  }
-  
-  const launchargs = [
-    '--disable-extensions-except=' + __dirname + '/bz-extension',
-    '--load-extension=' + __dirname + '/bz-extension',
-    '--ignore-certificate-errors',
-    '--no-sandbox',
-    `--window-size=${width},${height}`,
-    '--defaultViewport: null'
+    const launchargs = [
+      '--disable-extensions-except=' + __dirname + '/bz-extension',
+      '--load-extension=' + __dirname + '/bz-extension',
+      '--ignore-certificate-errors',
+      '--no-sandbox',
+      `--window-size=${width},${height}`,
+      '--defaultViewport: null',
+      "--disable-popup-blocking", 
+      "--allow-popups-during-page-unload"
     ];
 
-  
+    
     const wsChromeEndpointurl = 'ws://127.0.0.1:9222/devtools/browser/'+browserid;
+    console.log("::::"+wsChromeEndpointurl)
     const browser = await puppeteer.connect({
       headless: false,
         browserWSEndpoint: wsChromeEndpointurl,
         args: launchargs
     });
+
+
+    /** 
+    let pages = await browser.pages();
+    browser.on('targetcreated', async () => {    
+          pages = await browser.pages();
+          
+          setupPopup(); 
+          Service.setPage(page);  
+    });
+    */
+
+    const page = await browser.newPage();
+    
+    let url = result.args[0];
+    if ((!opts.screenshot) && (!opts.listscenarios) && typeof (url) == 'string' && !url.endsWith("/run") && url.match(/\/m[0-9]+\/t[0-9]+/)) {
+      if (!url.endsWith("/")) {
+          url += "/"
+      }
+      url += "run"
+    }
+
+    let inService=0;
+    console.log("Browser URL: "+url)
+    if(url.match(/(\?|\&)key=.+(\&|\#)/)){
+      console.log("Running in cooperation!")
+      inService=1
+    }else{
+      console.log("Running in stand alone!")
+    }
+
+    // Assign all log listeners
+    Service.logMonitor(page,keepalive,file,inService);
+
+    if(listsuite||listscenarios){
+      Service.setBeginningFun(function(){
+        Service.insertFileTask(function(){
+          Service.result = 0;
+          Service.shutdown()
+        })
+        if(listsuite){
+          page.evaluate((v)=>{
+            $util.getTestsBySuite(v)
+          }, listsuite);
+        }else if(listscenarios){
+          page.evaluate((v)=>{
+            $util.getScenariosByTag(v)
+          }, JSON.parse(listscenarios));
+        }
+      })
+    }
+
+    //const version = await page.browser().version();
+    //console.log("Running Chrome version: " + version);
+    const response = await page.goto(url);
+
+    page.on("error", idePrintStackTrace);
+    page.on("pageerror", idePrintStackTrace);
+
+    
+  }
 
   function printStackTrace(app,err){
     console.error(
@@ -114,8 +179,6 @@ fs.readFile('nohup.out', 'utf8', function(err, data) {
     Service.chkIDE()
   }
 
-  // Setup popup
-  let popup = null;
   function setupPopup() {
     popup = pages[pages.length-1]; 
     popup.setViewport({
@@ -127,63 +190,6 @@ fs.readFile('nohup.out', 'utf8', function(err, data) {
     popup.on("pageerror", appPrintStackTrace);
     Service.setPopup(popup)
   }
-  /** 
-  let pages = await browser.pages();
-  browser.on('targetcreated', async () => {    
-        pages = await browser.pages();
-        
-        setupPopup(); 
-        Service.setPage(page);  
-  });
-  */
-
-  const page = await browser.newPage();
-  
-  let url = result.args[0];
-  if ((!opts.screenshot) && (!opts.listscenarios) && typeof (url) == 'string' && !url.endsWith("/run") && url.match(/\/m[0-9]+\/t[0-9]+/)) {
-    if (!url.endsWith("/")) {
-        url += "/"
-    }
-    url += "run"
-  }
-
-  let inService=0;
-  console.log("Browser URL: "+url)
-  if(url.match(/(\?|\&)key=.+(\&|\#)/)){
-    console.log("Running in cooperation!")
-    inService=1
-  }else{
-    console.log("Running in stand alone!")
-  }
-
-  // Assign all log listeners
-  Service.logMonitor(page,keepalive,file,inService);
-
-  if(listsuite||listscenarios){
-    Service.setBeginningFun(function(){
-      Service.insertFileTask(function(){
-        Service.result = 0;
-        Service.shutdown()
-      })
-      if(listsuite){
-        page.evaluate((v)=>{
-          $util.getTestsBySuite(v)
-        }, listsuite);
-      }else if(listscenarios){
-        page.evaluate((v)=>{
-          $util.getScenariosByTag(v)
-        }, JSON.parse(listscenarios));
-      }
-    })
-  }
-
-  //const version = await page.browser().version();
-  //console.log("Running Chrome version: " + version);
-  const response = await page.goto(url);
-
-  page.on("error", idePrintStackTrace);
-  page.on("pageerror", idePrintStackTrace);
-
 })()
 
 

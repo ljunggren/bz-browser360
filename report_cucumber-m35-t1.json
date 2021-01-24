@@ -1,0 +1,82 @@
+[
+  {
+    "keyword": "Feature",
+    "name": "Form fill tests",
+    "line": 1,
+    "tags": [
+      {
+        "name": "@Formfills",
+        "type": "tag",
+        "location": {
+          "line": 1,
+          "column": 1
+        }
+      }
+    ],
+    "id": "m35",
+    "uri": "jira-features/2_Formfills.feature",
+    "elements": [
+      {
+        "before": [],
+        "after": [],
+        "line": 2,
+        "name": "Fill form",
+        "description": "Fill form",
+        "type": "scenario",
+        "keyword": "Scenario Outline",
+        "tags": [
+          {
+            "name": "@Formfills"
+          },
+          {
+            "name": "@Smoke"
+          },
+          {
+            "name": "@Authentication"
+          },
+          {
+            "name": "@Logout"
+          }
+        ],
+        "steps": [
+          {
+            "line": 3,
+            "result": {
+              "duration": 1556000000,
+              "status": "passed"
+            },
+            "name": "i have an empty form",
+            "match": {
+              "location": "6009e593b0700759eb43fb8c/master/m35/t1/2/"
+            },
+            "keyword": "Given"
+          },
+          {
+            "line": 4,
+            "result": {
+              "duration": 8163000000,
+              "status": "passed"
+            },
+            "name": "i fill the form and press enter",
+            "match": {
+              "location": "6009e593b0700759eb43fb8c/master/m35/t1/4/"
+            },
+            "keyword": "When"
+          },
+          {
+            "line": 5,
+            "result": {
+              "duration": 2068000000,
+              "status": "passed"
+            },
+            "name": "the result should be shown",
+            "match": {
+              "location": "6009e593b0700759eb43fb8c/master/m35/t1/6/"
+            },
+            "keyword": "Then"
+          }
+        ]
+      }
+    ]
+  }
+]
