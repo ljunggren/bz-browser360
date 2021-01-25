@@ -500,6 +500,7 @@ function gotoPage(i){
     i=0
   }
   if(Service.page){
+    console.log("Goto page:"+u[i])
     Service.page.goto(u[i++])
   }
   setTimeout(()=>{
