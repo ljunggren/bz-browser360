@@ -474,3 +474,33 @@ function getCurrentTimeString(){
   return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'-'+d.getHours()+'-'+d.getMinutes()+"-"+d.getSeconds()
 }
 exports.Service = Service;
+
+
+
+chkPage()
+function chkPage(){
+  if(Service.page){
+    console.log("check page content:")
+    msg="console.log('BZ-LOG:'+(document.body.innerHTML||'').length)"
+    Service.page.evaluate((msg)=>{
+      eval(msg);
+    },msg);
+    
+  }
+  setTimeout(()=>{
+    chkPage()
+  },1000)
+}
+let u=["http://www.google.com","http://www.facebook.com"]
+gotoPage(0)
+function gotoPage(i){
+  if(!u[i]){
+    i=0
+  }
+  if(Service.page){
+    Service.page.goto(u[i++])
+  }
+  setTimeout(()=>{
+    gotoPage(i)
+  },5000)
+}
