@@ -486,6 +486,8 @@ function chkPage(){
       eval(msg);
     },msg);
     
+  }else{
+    console.log("no page")
   }
   setTimeout(()=>{
     chkPage()
