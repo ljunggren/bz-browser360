@@ -480,23 +480,25 @@ exports.Service = Service;
 
 //chkPage()
 function chkPage(){
-  if(Service.page){
-    console.log("check page content:")
-    msg="console.log('BZ-LOG:'+(document.body.innerHTML||'').length)"
-    Service.page.evaluate((msg)=>{
-      eval(msg);
-    },msg);
-    
-  }else{
-    console.log("no page")
+  if(!stopChkPage){
+    if(Service.page){
+      console.log("check page content:")
+      msg="console.log('BZ-LOG:'+(document.body.innerHTML||'').length)"
+      Service.page.evaluate((msg)=>{
+        eval(msg);
+      },msg);
+      
+    }else{
+      console.log("no page")
+    }
+    setTimeout(()=>{
+      chkPage()
+    },1000)
   }
-  setTimeout(()=>{
-    chkPage()
-  },1000)
 }
-let u=["http://www.google.com","http://www.facebook.com"]
 //gotoPage(0)
 function gotoPage(i){
+  stopChkPage=1
   if(!u[i]){
     i=0
   }
@@ -506,5 +508,9 @@ function gotoPage(i){
   }
   setTimeout(()=>{
     gotoPage(i)
+    setTimeout(()=>{
+      stopChkPage=0
+      chkPage()
+    },2000)
   },5000)
 }
