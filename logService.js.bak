@@ -30,8 +30,9 @@ const Service = {
     page.on('console', msg => {
       let timeout,t;
 
-      //msg = (msg&&msg.text) || "def";
-      msg = (!!msg && msg.text()) || "def";
+      msg = (msg&&msg.text) || "def";
+      //msg = (!!msg && msg.text()) || "def";
+
       msg=trimPreMsg(msg)
       if(!msg){
         return
@@ -85,8 +86,8 @@ const Service = {
     })
     
     function trimPreMsg(msg){
-      //if(msg&&msg.match(/^BZ-LOG\:/)){
-      if(msg&&msg.startsWith("BZ-LOG:")){
+      if(msg&&msg.match(/^BZ-LOG\:/)){
+      //if(msg&&msg.startsWith("BZ-LOG:")){  
         msg=msg.substring(7).trim()
       }else{
         return
@@ -475,36 +476,3 @@ function getCurrentTimeString(){
   return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'-'+d.getHours()+'-'+d.getMinutes()+"-"+d.getSeconds()
 }
 exports.Service = Service;
-
-
-
-//chkPage()
-function chkPage(){
-  if(Service.page){
-    console.log("check page content:")
-    msg="console.log('BZ-LOG:'+(document.body.innerHTML||'').length)"
-    Service.page.evaluate((msg)=>{
-      eval(msg);
-    },msg);
-    
-  }else{
-    console.log("no page")
-  }
-  setTimeout(()=>{
-    chkPage()
-  },1000)
-}
-let u=["http://www.google.com","http://www.facebook.com"]
-//gotoPage(0)
-function gotoPage(i){
-  if(!u[i]){
-    i=0
-  }
-  if(Service.page){
-    console.log("Goto page:"+u[i])
-    Service.page.goto(u[i++])
-  }
-  setTimeout(()=>{
-    gotoPage(i)
-  },5000)
-}

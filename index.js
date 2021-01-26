@@ -57,6 +57,7 @@ let popup = null;
 
   // const delay = ms => new Promise(res => setTimeout(res, ms));
   // await delay(15000);
+  /** 
   getId()
 
   function getId(){
@@ -75,7 +76,8 @@ let popup = null;
     });
   }
 
-
+  */
+  doIt();
   async function doIt(){
 
     let file = (docker ? "/var/boozang/" : "");
@@ -100,7 +102,20 @@ let popup = null;
       "--allow-popups-during-page-unload"
     ];
 
+    if (!process.env.CHROME_BIN){
+      process.env.CHROME_BIN = require('puppeteer').executablePath();
+      console.log("Using default Puppeteer Chome: " + process.env.CHROME_BIN)
+    } else {
+      console.log("Using override Puppeteer Chome: " + process.env.CHROME_BIN)
+    }
     
+    const browser = await puppeteer.launch({
+      headless: false,
+      executablePath: process.env.CHROME_BIN,
+      args: launchargs
+    })
+
+    /** 
     const wsChromeEndpointurl = 'ws://127.0.0.1:9222/devtools/browser/'+browserid;
     console.log("::::"+wsChromeEndpointurl)
     const browser = await puppeteer.connect({
@@ -108,6 +123,7 @@ let popup = null;
         browserWSEndpoint: wsChromeEndpointurl,
         args: launchargs
     });
+    */
 
 
     /** 
