@@ -57,7 +57,7 @@ let popup = null;
 
   // const delay = ms => new Promise(res => setTimeout(res, ms));
   // await delay(15000);
-  /** 
+ /** 
   getId()
 
   function getId(){
@@ -77,6 +77,8 @@ let popup = null;
   }
 
   */
+
+
   doIt();
   async function doIt(){
 
@@ -90,10 +92,13 @@ let popup = null;
       userdatadir = (docker ? "/var/boozang/userdatadir" : "") + (opts.userdatadir || "");
       console.log("Setting userdatadir: " + userdatadir);
     }
+
+    let extension_path = docker? "/app/bz-extension": __dirname + "/bz-extension";
+    console.log("Setting extension path: " + extension_path);
     
     const launchargs = [
-      '--disable-extensions-except=' + __dirname + '/bz-extension',
-      '--load-extension=' + __dirname + '/bz-extension',
+      `--disable-extensions-except=${extension_path}`,
+      `--load-extension==${extension_path}`,
       '--ignore-certificate-errors',
       '--no-sandbox',
       `--window-size=${width},${height}`,
@@ -104,16 +109,17 @@ let popup = null;
 
     if (!process.env.CHROME_BIN){
       process.env.CHROME_BIN = require('puppeteer').executablePath();
-      console.log("Using default Puppeteer Chome: " + process.env.CHROME_BIN)
+      console.log("Using default Puppeteer Chrome: " + process.env.CHROME_BIN)
     } else {
-      console.log("Using override Puppeteer Chome: " + process.env.CHROME_BIN)
+      console.log("Using override Puppeteer Chrome: " + process.env.CHROME_BIN)
     }
-    
+   
     const browser = await puppeteer.launch({
       headless: false,
       executablePath: process.env.CHROME_BIN,
       args: launchargs
     })
+    
 
     /** 
     const wsChromeEndpointurl = 'ws://127.0.0.1:9222/devtools/browser/'+browserid;
@@ -126,15 +132,16 @@ let popup = null;
     */
 
 
-    /** 
+
+    
     let pages = await browser.pages();
     browser.on('targetcreated', async () => {    
           pages = await browser.pages();
-          
-          setupPopup(); 
+          //console.log("### Pages: ",pages);
+          setupPopup(pages); 
           Service.setPage(page);  
     });
-    */
+    
 
     const page = await browser.newPage();
     
@@ -203,8 +210,10 @@ let popup = null;
     Service.chkIDE()
   }
 
-  function setupPopup() {
+  function setupPopup(pages) {
+    //console.log("###Getting pages", pages)
     popup = pages[pages.length-1]; 
+    //console.log("###Getting popup", popup)
     popup.setViewport({
       width: parseInt(width),
       height: parseInt(height)
